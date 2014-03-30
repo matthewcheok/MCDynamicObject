@@ -54,7 +54,10 @@ static NSMutableDictionary *_sharedInstances = nil;
 		NSMutableDictionary *getters = [NSMutableDictionary dictionary];
 		NSMutableDictionary *setters = [NSMutableDictionary dictionary];
 
-		for (MCProperty *property in [MCProperty propertiesForClass:[self class]]) {
+        NSArray *array = [MCProperty propertiesForClass:[self class]];
+        [self validateProperties:array];
+        
+		for (MCProperty *property in array) {
 			if ([property isDynamic]) {
 				[properties setObject:property forKey:property.name];
 				[getters setObject:property forKey:property.getterName];
@@ -87,6 +90,11 @@ static NSMutableDictionary *_sharedInstances = nil;
 
 - (id)dynamicValueForKey:(NSString *)key {
     return nil;
+}
+
+#pragma mark - Private
+
+- (void)validateProperties:(NSArray *)properties {
 }
 
 #pragma mark - Key-Value Coding
@@ -146,98 +154,16 @@ static NSMutableDictionary *_sharedInstances = nil;
                 break;
             }
 
-            case MCPropertyTypeChar: {
-                char number = [(NSNumber *)value charValue];
-                [anInvocation setReturnValue:&number];
-                break;
-            }
-
-            case MCPropertyTypeShort: {
-                short number = [(NSNumber *)value shortValue];
-                [anInvocation setReturnValue:&number];
-                break;
-            }
-
-            case MCPropertyTypeInt: {
-                int number = [(NSNumber *)value intValue];
-                [anInvocation setReturnValue:&number];
-                break;
-            }
-
-            case MCPropertyTypeLong: {
-                long number = [(NSNumber *)value longValue];
-                [anInvocation setReturnValue:&number];
-                break;
-            }
-
-            case MCPropertyTypeFloat: {
-                float number = [(NSNumber *)value floatValue];
-                [anInvocation setReturnValue:&number];
-                break;
-            }
-
-            case MCPropertyTypeDouble: {
-                double number = [(NSNumber *)value doubleValue];
-                [anInvocation setReturnValue:&number];
-                break;
-            }
-
-            case MCPropertyTypeBoolean: {
-                BOOL number = [(NSNumber *)value boolValue];
-                [anInvocation setReturnValue:&number];
-                break;
-            }
-
-            case MCPropertyTypeNSInteger: {
-                NSInteger number = [(NSNumber *)value integerValue];
-                [anInvocation setReturnValue:&number];
-                break;
-            }
-
-            case MCPropertyTypeNSUInteger: {
-                NSUInteger number = [(NSNumber *)value unsignedIntegerValue];
-                [anInvocation setReturnValue:&number];
-                break;
-            }
-
-            case MCPropertyTypeNSRange: {
-                NSRange range = [(NSValue *)value rangeValue];
-                [anInvocation setReturnValue:&range];
-                break;
-            }
-
-            case MCPropertyTypeCGPoint: {
-                CGPoint point = [(NSValue *)value CGPointValue];
-                [anInvocation setReturnValue:&point];
-                break;
-            }
-
-            case MCPropertyTypeCGSize: {
-                CGSize size = [(NSValue *)value CGSizeValue];
-                [anInvocation setReturnValue:&size];
-                break;
-            }
-
-            case MCPropertyTypeCGRect: {
-                CGRect rect = [(NSValue *)value CGRectValue];
-                [anInvocation setReturnValue:&rect];
-                break;
-            }
-
-            case MCPropertyTypeCGAffineTransform: {
-                CGAffineTransform transform = [(NSValue *)value CGAffineTransformValue];
-                [anInvocation setReturnValue:&transform];
-                break;
-            }
-
-            case MCPropertyTypeCATransform3D: {
-                CATransform3D transform = [(NSValue *)value CATransform3DValue];
-                [anInvocation setReturnValue:&transform];
-                break;
-            }
-
             default: {
-                [NSException raise:NSInternalInconsistencyException format:@"The type \"%@\" for the property \"%@\" is not supported.", property.encoding, property.name];
+                NSUInteger bufferSize = 0;
+                NSGetSizeAndAlignment([property.encoding UTF8String], &bufferSize, NULL);
+                void* buffer = malloc(bufferSize);
+                
+                [(NSValue *)value getValue:buffer];
+                [anInvocation setReturnValue:buffer];
+                [anInvocation retainArguments];
+                
+                free(buffer);
                 break;
             }
         }
@@ -248,115 +174,24 @@ static NSMutableDictionary *_sharedInstances = nil;
 	// setter
 	property = [self.setters objectForKey:selectorAsString];
 	if (property) {
-		__unsafe_unretained id value = nil;
-
         switch (property.type) {
             case MCPropertyTypeObject: {
+                __unsafe_unretained id value = nil;
                 [anInvocation getArgument:&value atIndex:2];
                 [self setDynamicValue:value forKey:property.name];
                 break;
             }
 
-            case MCPropertyTypeChar: {
-                [anInvocation getArgument:&value atIndex:2];
-                [self setDynamicValue:[NSNumber numberWithChar:(char)value] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeShort: {
-                [anInvocation getArgument:&value atIndex:2];
-                [self setDynamicValue:[NSNumber numberWithShort:(short)value] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeInt: {
-                [anInvocation getArgument:&value atIndex:2];
-                [self setDynamicValue:[NSNumber numberWithInt:(int)value] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeLong: {
-                [anInvocation getArgument:&value atIndex:2];
-                [self setDynamicValue:[NSNumber numberWithLong:(long)value] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeFloat: {
-                float number;
-                [anInvocation getArgument:&number atIndex:2];
-                [self setDynamicValue:[NSNumber numberWithFloat:number] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeDouble: {
-                double number;
-                [anInvocation getArgument:&number atIndex:2];
-                [self setDynamicValue:[NSNumber numberWithDouble:number] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeBoolean: {
-                [anInvocation getArgument:&value atIndex:2];
-                [self setDynamicValue:[NSNumber numberWithBool:(BOOL)value] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeNSInteger: {
-                [anInvocation getArgument:&value atIndex:2];
-                [self setDynamicValue:[NSNumber numberWithInteger:(NSInteger)value] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeNSUInteger: {
-                [anInvocation getArgument:&value atIndex:2];
-                [self setDynamicValue:[NSNumber numberWithUnsignedInteger:(NSUInteger)value] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeNSRange: {
-                NSRange range;
-                [anInvocation getArgument:&range atIndex:2];
-                [self setDynamicValue:[NSValue valueWithRange:range] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeCGPoint: {
-                CGPoint point;
-                [anInvocation getArgument:&point atIndex:2];
-                [self setDynamicValue:[NSValue valueWithCGPoint:point] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeCGSize: {
-                CGSize size;
-                [anInvocation getArgument:&size atIndex:2];
-                [self setDynamicValue:[NSValue valueWithCGSize:size] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeCGRect: {
-                CGRect rect;
-                [anInvocation getArgument:&rect atIndex:2];
-                [self setDynamicValue:[NSValue valueWithCGRect:rect] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeCGAffineTransform: {
-                CGAffineTransform transform;
-                [anInvocation getArgument:&transform atIndex:2];
-                [self setDynamicValue:[NSValue valueWithCGAffineTransform:transform] forKey:property.name];
-                break;
-            }
-
-            case MCPropertyTypeCATransform3D: {
-                CATransform3D transform;
-                [anInvocation getArgument:&transform atIndex:2];
-                [self setDynamicValue:[NSValue valueWithCATransform3D:transform] forKey:property.name];
-                break;
-            }
-
             default: {
-                [NSException raise:NSInternalInconsistencyException format:@"The type \"%@\" for the property \"%@\" is not supported.", property.encoding, property.name];
+                NSUInteger bufferSize = 0;
+                NSGetSizeAndAlignment([property.encoding UTF8String], &bufferSize, NULL);
+                void* buffer = malloc(bufferSize);
+                
+                [anInvocation getArgument:buffer atIndex:2];
+                NSValue *value = [NSValue valueWithBytes:buffer objCType:[property.encoding UTF8String]];
+                [self setDynamicValue:value forKey:property.name];
+                
+                free(buffer);
                 break;
             }
         }

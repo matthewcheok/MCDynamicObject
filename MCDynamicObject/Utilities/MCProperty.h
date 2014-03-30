@@ -21,26 +21,23 @@ typedef NS_ENUM(NSInteger, MCPropertyType) {
     MCPropertyTypeBoolean,
     MCPropertyTypeNSInteger,
     MCPropertyTypeNSUInteger,
-    MCPropertyTypeNSRange,
-    MCPropertyTypeCGPoint,
-    MCPropertyTypeCGSize,
-    MCPropertyTypeCGRect,
-    MCPropertyTypeCGAffineTransform,
-    MCPropertyTypeCATransform3D
+    MCPropertyTypeStruct
 };
 
 @interface MCProperty : NSObject
 
 @property (strong, nonatomic, readonly) NSString *name;
 @property (assign, nonatomic, readonly) MCPropertyType type;
+@property (assign, nonatomic, readonly) Class propertyClass;
 
 @property (strong, nonatomic, readonly) NSString *encoding;
 @property (strong, nonatomic, readonly) NSString *className;
+@property (strong, nonatomic, readonly) NSString *structName;
 
 @property (strong, nonatomic, readonly) NSString *getterName;
-@property (strong, nonatomic, readonly) NSString *setterName;
-
 @property (strong, nonatomic, readonly) NSString *getterSignature;
+
+@property (strong, nonatomic, readonly) NSString *setterName;
 @property (strong, nonatomic, readonly) NSString *setterSignature;
 
 @property (assign, nonatomic, readonly, getter = isReadonly) BOOL readonly;
@@ -54,7 +51,5 @@ typedef NS_ENUM(NSInteger, MCPropertyType) {
 
 + (NSArray *)propertiesForClass:(Class)class;
 + (instancetype)propertyForKey:(NSString *)key inClass:(Class)class;
-
-- (Class)propertyClass;
 
 @end

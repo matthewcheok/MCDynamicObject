@@ -64,11 +64,11 @@ Read from and write to your properties as normal:
     NSLog(@"lastUpdatedDate: %@", cache.lastUpdatedDate);
     cache.lastUpdatedDate = [NSDate date];
 
-## Creating your own subclass of MCDynamicObject
+## Subclassing MCDynamicObject
 
 You can subclass `MCDynamicObject` to provide your own data store.
 
-Overwrite `- (void)setup` to setup your data store. Then overwrite `- (id)dynamicValueForKey:(NSString *)key` and `- (void)setDynamicValue:(id)value forKey:(NSString *)key` to provide read and write access.
+Override `- (void)setup` to setup your data store. Then override `- (id)dynamicValueForKey:(NSString *)key` and `- (void)setDynamicValue:(id)value forKey:(NSString *)key` to provide read and write access.
 
 The getters and setters take a `NSObject` subclass for objects or `NSValue` subclass for primitives.
 

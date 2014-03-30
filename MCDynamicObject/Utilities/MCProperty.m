@@ -12,6 +12,12 @@
 static NSString *const kObjectClassRegexPattern = @"^T@\\\"(\\w+)\\\"$";
 static NSString *const kObjectStructRegexPattern = @"^\\{(\\w+)=.+\\}$";
 
+@interface MCProperty ()
+
+@property (assign, nonatomic) objc_property_t property;
+
+@end
+
 @implementation MCProperty
 
 + (NSArray *)propertiesForClass:(Class)class {
@@ -40,6 +46,7 @@ static NSString *const kObjectStructRegexPattern = @"^\\{(\\w+)=.+\\}$";
 - (instancetype)initWithDeclaration:(objc_property_t)property {
 	self = [super init];
 	if (self) {
+        _property = property;
 		_name = [NSString stringWithUTF8String:property_getName(property)];
 
 		const char *attributeString = property_getAttributes(property);
@@ -81,33 +88,21 @@ static NSString *const kObjectStructRegexPattern = @"^\\{(\\w+)=.+\\}$";
 		if ([attributes containsObject:@"W"]) {
 			_weak = YES;
 		}
-
-		// getter
-		char *getterName = property_copyAttributeValue(property, "G");
-		if (getterName) {
-			_getterName = [NSString stringWithUTF8String:getterName];
-			free(getterName);
-		}
-		else {
-			_getterName = _name;
-		}
-        _getterSignature = [NSString stringWithFormat:@"%@@:", _encoding];
-
-		// setter
-		if (!_readonly) {
-			char *setterName = property_copyAttributeValue(property, "S");
-			if (setterName) {
-				_setterName = [NSString stringWithUTF8String:setterName];
-				free(setterName);
-			}
-			else {
-				NSString *selectorString = [_name stringByReplacingCharactersInRange:NSMakeRange(0, 1)withString:[[_name substringToIndex:1] uppercaseString]];
-				_setterName = [NSString stringWithFormat:@"set%@:", selectorString];
-			}
-            _setterSignature = [NSString stringWithFormat:@"v@:%@", _encoding];
-		}
 	}
 	return self;
+}
+
+#pragma mark - Properties
+
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p, %@>",
+	        [self class],
+	        self,
+	        @{
+              @"name": self.name,
+              @"type": [[self class] stringForType:self.type],
+              @"className": self.className ? : [NSNull null]
+              }];
 }
 
 - (Class)propertyClass {
@@ -117,15 +112,59 @@ static NSString *const kObjectStructRegexPattern = @"^\\{(\\w+)=.+\\}$";
 	return nil;
 }
 
-- (NSString *)description {
-	return [NSString stringWithFormat:@"<%@: %p, %@>",
-	        [self class],
-	        self,
-	        @{
-	            @"name": self.name,
-	            @"type": [[self class] stringForType:self.type],
-	            @"className": self.className ? : [NSNull null]
-			}];
+- (NSString *)structName {
+    if (self.type == MCPropertyTypeStruct) {
+        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:kObjectStructRegexPattern options:0 error:nil];
+        NSTextCheckingResult *result = [[regex matchesInString:self.encoding options:NSMatchingAnchored range:NSMakeRange(0, [self.encoding length])] firstObject];
+        if ([result numberOfRanges] > 1) {
+            return [self.encoding substringWithRange:[result rangeAtIndex:1]];
+        }
+    }
+    
+    return nil;
+}
+
+- (NSString *)getterName {
+    NSString *result = nil;
+    
+    char *getterName = property_copyAttributeValue(self.property, "G");
+    if (getterName) {
+        result = [NSString stringWithUTF8String:getterName];
+        free(getterName);
+    }
+
+    return result ?: self.name;
+}
+
+- (NSString *)getterSignature {
+    return [NSString stringWithFormat:@"%@@:", _encoding];
+}
+
+- (NSString *)setterName {
+    if ([self isReadonly]) {
+        return nil;
+    }
+    NSString *result = nil;
+    
+    char *setterName = property_copyAttributeValue(self.property, "S");
+    if (setterName) {
+        result = [NSString stringWithUTF8String:setterName];
+        free(setterName);
+    }
+    else {
+        NSString *selectorString = [_name stringByReplacingCharactersInRange:NSMakeRange(0, 1)withString:[[_name substringToIndex:1] uppercaseString]];
+        result = [NSString stringWithFormat:@"set%@:", selectorString];
+    }
+    
+    return result;
+}
+
+- (NSString *)setterSignature {
+    if ([self isReadonly]) {
+        return nil;
+    }
+    
+    return [NSString stringWithFormat:@"v@:%@", _encoding];
 }
 
 #pragma mark - Private
@@ -162,34 +201,7 @@ static NSString *const kObjectStructRegexPattern = @"^\\{(\\w+)=.+\\}$";
 		return MCPropertyTypeNSUInteger;
 	}
     else if ([encoding hasPrefix:@"{"]) {
-        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:kObjectStructRegexPattern options:0 error:nil];
-        NSTextCheckingResult *result = [[regex matchesInString:encoding options:NSMatchingAnchored range:NSMakeRange(0, [encoding length])] firstObject];
-        NSString *structName = nil;
-        if ([result numberOfRanges] > 1) {
-            structName = [encoding substringWithRange:[result rangeAtIndex:1]];
-        }
-
-        // identify struct
-        if ([structName isEqualToString:@"_NSRange"]) {
-            return MCPropertyTypeNSRange;
-        }
-        else if ([structName isEqualToString:@"CGPoint"]) {
-            return MCPropertyTypeCGPoint;
-        }
-        else if ([structName isEqualToString:@"CGSize"]) {
-            return MCPropertyTypeCGSize;
-        }
-        else if ([structName isEqualToString:@"CGRect"]) {
-            return MCPropertyTypeCGRect;
-        }
-        else if ([structName isEqualToString:@"CGAffineTransform"]) {
-            return MCPropertyTypeCGAffineTransform;
-        }
-        else if ([structName isEqualToString:@"CATransform3D"]) {
-            return MCPropertyTypeCATransform3D;
-        }
-
-		return MCPropertyTypeUnknown;
+		return MCPropertyTypeStruct;
     }
 	else {
 		return MCPropertyTypeUnknown;
@@ -231,23 +243,8 @@ static NSString *const kObjectStructRegexPattern = @"^\\{(\\w+)=.+\\}$";
 		case MCPropertyTypeNSUInteger:
 			return @"MCPropertyTypeNSUInteger";
             
-        case MCPropertyTypeNSRange:
-            return @"MCPropertyTypeNSRange";
-
-        case MCPropertyTypeCGPoint:
-            return @"MCPropertyTypeCGPoint";
-        
-        case MCPropertyTypeCGSize:
-            return @"MCPropertyTypeCGSize";
-        
-        case MCPropertyTypeCGRect:
-            return @"MCPropertyTypeCGRect";
-            
-        case MCPropertyTypeCGAffineTransform:
-            return @"MCPropertyTypeCGAffineTransform";
-            
-        case MCPropertyTypeCATransform3D:
-            return @"MCPropertyTypeCATransform3D";
+        case MCPropertyTypeStruct:
+            return @"MCPropertyTypeStruct";
 	}
 }
 
