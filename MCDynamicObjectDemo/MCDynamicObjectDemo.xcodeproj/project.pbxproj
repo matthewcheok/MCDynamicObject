@@ -10,6 +10,8 @@
 		0B6E47398030457CAA6F83CE /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B318A9204994341972C7991 /* libPods.a */; };
 		3416A6CE18E80BCA002DA407 /* MCTestingCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 3416A6CD18E80BCA002DA407 /* MCTestingCache.m */; };
 		3416A6D918E81176002DA407 /* MCTestingKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 3416A6D818E81176002DA407 /* MCTestingKeychain.m */; };
+		348BD1BD18E8847B0087F395 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 348BD1BC18E8847B0087F395 /* Storyboard.storyboard */; };
+		348BD1C018E885C30087F395 /* MCDemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 348BD1BF18E885C30087F395 /* MCDemoViewController.m */; };
 		34B5254618E8054F0012C50A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34B5254518E8054F0012C50A /* Foundation.framework */; };
 		34B5254818E8054F0012C50A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34B5254718E8054F0012C50A /* CoreGraphics.framework */; };
 		34B5254A18E8054F0012C50A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34B5254918E8054F0012C50A /* UIKit.framework */; };
@@ -40,6 +42,9 @@
 		3416A6CD18E80BCA002DA407 /* MCTestingCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MCTestingCache.m; sourceTree = "<group>"; };
 		3416A6D718E81176002DA407 /* MCTestingKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MCTestingKeychain.h; sourceTree = "<group>"; };
 		3416A6D818E81176002DA407 /* MCTestingKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MCTestingKeychain.m; sourceTree = "<group>"; };
+		348BD1BC18E8847B0087F395 /* Storyboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Storyboard.storyboard; sourceTree = "<group>"; };
+		348BD1BE18E885C30087F395 /* MCDemoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MCDemoViewController.h; sourceTree = "<group>"; };
+		348BD1BF18E885C30087F395 /* MCDemoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MCDemoViewController.m; sourceTree = "<group>"; };
 		34B5254218E8054F0012C50A /* MCDynamicObjectDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MCDynamicObjectDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		34B5254518E8054F0012C50A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		34B5254718E8054F0012C50A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -95,6 +100,16 @@
 			name = Demo;
 			sourceTree = "<group>";
 		};
+		348BD1C118E886A80087F395 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				348BD1BC18E8847B0087F395 /* Storyboard.storyboard */,
+				348BD1BE18E885C30087F395 /* MCDemoViewController.h */,
+				348BD1BF18E885C30087F395 /* MCDemoViewController.m */,
+			);
+			name = UI;
+			sourceTree = "<group>";
+		};
 		34B5253918E8054F0012C50A = {
 			isa = PBXGroup;
 			children = (
@@ -132,6 +147,7 @@
 			children = (
 				34B5257818E807270012C50A /* App Delegate */,
 				3416A6CF18E80BD0002DA407 /* Demo */,
+				348BD1C118E886A80087F395 /* UI */,
 				34B5255718E8054F0012C50A /* Images.xcassets */,
 				34B5254C18E8054F0012C50A /* Supporting Files */,
 			);
@@ -256,6 +272,7 @@
 			files = (
 				34B5255018E8054F0012C50A /* InfoPlist.strings in Resources */,
 				34B5255818E8054F0012C50A /* Images.xcassets in Resources */,
+				348BD1BD18E8847B0087F395 /* Storyboard.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -310,6 +327,7 @@
 				3416A6CE18E80BCA002DA407 /* MCTestingCache.m in Sources */,
 				34B5255618E8054F0012C50A /* MCAppDelegate.m in Sources */,
 				3416A6D918E81176002DA407 /* MCTestingKeychain.m in Sources */,
+				348BD1C018E885C30087F395 /* MCDemoViewController.m in Sources */,
 				34B5255218E8054F0012C50A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

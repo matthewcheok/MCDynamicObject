@@ -10,6 +10,6 @@
 
 @implementation MCTestingKeychain
 
-@dynamic email, password;
+@dynamic name, email, password;
 
 @end
