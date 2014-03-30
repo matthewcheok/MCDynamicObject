@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'MCDynamicObject'
-  s.version  = '0.1'
+  s.version  = '0.2'
   s.platform = :ios, '7.0'
   s.license  = { :type => 'MIT', :file => 'LICENSE' }
   s.summary  = 'Automatic persistence for your next iOS project.'
