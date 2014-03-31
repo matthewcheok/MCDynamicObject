@@ -55,7 +55,7 @@ static NSMutableDictionary *_sharedInstances = nil;
 		NSMutableDictionary *setters = [NSMutableDictionary dictionary];
 
         NSArray *array = [MCProperty propertiesForClass:[self class]];
-        [self validateProperties:array];
+        [self __validateProperties:array];
         
 		for (MCProperty *property in array) {
 			if ([property isDynamic]) {
@@ -94,7 +94,7 @@ static NSMutableDictionary *_sharedInstances = nil;
 
 #pragma mark - Private
 
-- (void)validateProperties:(NSArray *)properties {
+- (void)__validateProperties:(NSArray *)properties {
 }
 
 #pragma mark - Key-Value Coding

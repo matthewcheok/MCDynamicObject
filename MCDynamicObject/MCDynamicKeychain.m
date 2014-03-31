@@ -40,7 +40,7 @@
 
 #pragma mark - Private
 
-- (void)validateProperties:(NSArray *)properties {
+- (void)__validateProperties:(NSArray *)properties {
     for (MCProperty *property in properties) {
         if (property.type != MCPropertyTypeObject || ![property.className isEqualToString:@"NSString"]) {
             [NSException raise:NSInternalInconsistencyException format:@"The type for the property \"%@\" is not supported. PDKeychainBindings only supports NSString.", property.name];
